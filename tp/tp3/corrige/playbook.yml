@@ -104,6 +104,7 @@
   - name: "Create {{ mysql_user }} with all {{ mysql_dbname }} privileges"
     mysql_user:
       name: "{{ mysql_user }}"
+      host: "%"
       password: "{{ mysql_password }}"
       priv: "*.*:ALL"
       state: present
