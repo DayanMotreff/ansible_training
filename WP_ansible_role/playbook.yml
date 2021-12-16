@@ -1,0 +1,37 @@
+- name: Install database server with mysql role
+  hosts: db-server
+  become: yes
+  become_method: sudo
+  vars_files:
+    - vars/main.yml
+  roles:
+    - geerlingguy.mysql
+
+- name: Install Webserver with nginx, php, php-mysql role
+  hosts: webserver
+  become: yes
+  become_method: sudo
+  vars_files:
+    - vars/main.yml
+  roles:
+    - geerlingguy.nginx
+    - geerlingguy.php
+    - geerlingguy.php-mysql
+  tasks:
+  - name: Create a directory if it does not exist
+    ansible.builtin.file:
+      path: /var/www/wordpress
+      state: directory
+      mode: '0755'
+  - name: Download and unpack latest WordPress
+    unarchive:
+      src: https://fr.wordpress.org/latest-fr_FR.tar.gz
+      dest: "/var/www/"
+      remote_src: yes
+  - name: Recursively change ownership of a directory
+    ansible.builtin.file:
+      path: /var/www/wordpress
+      state: directory
+      recurse: yes
+      owner: www-data
+      group: www-data

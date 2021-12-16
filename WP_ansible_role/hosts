@@ -1,0 +1,5 @@
+[dbserver]
+db-server ansible_host=192.168.56.109 ansible_user=wpdb
+
+[webserver]
+webserver ansible_host=192.168.56.110 ansible_user=wpweb

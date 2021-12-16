@@ -1,0 +1,47 @@
+mysql_root_password: Palaminsane
+mysql_databases:
+  - name: wordpress
+    encoding: latin1
+    collation: latin1_general_ci
+mysql_users:
+  - name: wordpress
+    host: "%"
+    password: wordpresspass
+    priv: "wordpress.*:ALL"
+
+mysql_packages:
+  - mariadb-client
+  - mariadb-server
+  - python3-mysqldb
+
+nginx_remove_default_vhost: true
+nginx_vhosts:
+  - listen: "80"
+    root: "/var/www/wordpress"
+    server_name: 192.168.56.110
+    index: "index.php index.html index.htm"
+    access_log: "/var/log/nginx/acces.log"
+    error_log: "/var/log/nginx/error.log"
+    state: "present"
+    template: "{{ nginx_vhost_template }}"
+    filename: "wordpress.local.conf"
+    extra_parameters: |
+      location ~ \.php$ {
+          fastcgi_split_path_info ^(.+\.php)(/.+)$;
+          fastcgi_pass unix:/var/run/php/php-fpm.sock;
+          fastcgi_index index.php;
+          fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+          include fastcgi_params;
+      }
+php_enable_php_fpm: true
+php_fpm_pools:
+  - pool_name: www
+    pool_template: www.conf.j2
+    pool_listen: "/var/run/php/php-fpm.sock"
+    pool_listen_allowed_clients: "127.0.0.1"
+    pool_pm: dynamic
+    pool_pm_max_children: 5
+    pool_pm_start_servers: 2
+    pool_pm_min_spare_servers: 1
+    pool_pm_max_spare_servers: 3
+    pool_pm_max_requests: 500
